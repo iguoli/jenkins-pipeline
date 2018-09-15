@@ -19,7 +19,7 @@ pipeline {
                     // the following two lines have the same effect
                     foo = sh(returnStdout: true, script: "echo $env.staff").trim()
                     bar = sh(returnStdout: true, script: 'echo $staff').trim()
-                    grep_result = sh(returnStdout: true, script: 'echo abc | grep a | cut -d" " -f2').trim()
+                    grep_result = sh(returnStdout: true, script: 'echo "a b c" | grep a | cut -s -d" " -f2').trim()
                 }
             }
 
@@ -41,9 +41,11 @@ pipeline {
                 }
             }
             steps {
-                echo "Enter steps of the stage test"
+                echo "Enter the test stage"
                 script {
+                    // access the variables in other stages
                     println grep_result.getClass()
+                    echo "grep_result = $grep_result"
                     if(grep_result == '') {
                         echo "grep_result is empty string"
                         error 'Make the build stage fail'
@@ -52,7 +54,7 @@ pipeline {
 
                     // test returnStatus of the sh step
                     rc = sh script: 'echo abc | grep d', returnStatus: true 
-                    if(rc == 0) {
+                    if(rc == 1) {
                         echo "Test the return status of the sh step, rc = $rc"
                     }
                 }
